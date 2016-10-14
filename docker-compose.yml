@@ -1,0 +1,90 @@
+version: '2'
+
+services:
+
+### Workspace Utilities Container ###########################
+
+    workspace:
+        build:
+            context: ./docker/workspace
+            args:
+                - USER_NAME=symfony
+                - COMPOSER_GLOBAL_INSTALL=true
+                - INSTALL_WORKSPACE_SSH=true
+                - INSTALL_NODE=true
+                - PUID=1000
+                - PGID=1000
+                - TZ=Europe/Paris
+        volumes_from:
+            - volumes_source
+        extra_hosts:
+            - "dockerhost:10.0.75.1"
+        ports:
+           - "22:22"
+        tty: true
+
+### PHP-FPM Container #######################################
+
+    php-fpm:
+        build:
+            context: ./docker/php-fpm
+            args:
+                - INSTALL_ZIP_ARCHIVE=false
+            dockerfile: Dockerfile-70
+        volumes_from:
+            - volumes_source
+        expose:
+            - "9000"
+        links:
+            - workspace
+        extra_hosts:
+            - "dockerhost:10.0.75.1"
+        environment:
+            - PHP_IDE_CONFIG="serverName=symfony"
+
+### Nginx Server Container ##################################
+
+    nginx:
+        build:
+            context: ./docker/nginx
+            args:
+                - PHP_UPSTREAM=php-fpm
+        volumes_from:
+            - volumes_source
+        volumes:
+            - ./logs/nginx/:/var/log/nginx
+        ports:
+            - "80:80"
+            - "443:443"
+        links:
+            - php-fpm
+
+### MySQL Container #########################################
+
+    mysql:
+        build: ./docker/mysql
+        volumes_from:
+            - volumes_data
+        ports:
+            - "3306:3306"
+        environment:
+            MYSQL_DATABASE: homestead
+            MYSQL_USER: homestead
+            MYSQL_PASSWORD: secret
+            MYSQL_ROOT_PASSWORD: root
+
+### Laravel Application Code Container ######################
+
+    volumes_source:
+        image: tianon/true
+        volumes:
+            - .:/var/www/symfony
+
+### Databases Data Container ################################
+
+    volumes_data:
+        image: tianon/true
+        volumes:
+            - ./data/mysql:/var/lib/mysql
+
+### Add more Containers below ###############################

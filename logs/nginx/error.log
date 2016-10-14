@@ -1,0 +1,2 @@
+2016/10/14 16:52:28 [emerg] 1#1: host not found in upstream "engine" in /etc/nginx/sites-available/symfony.conf:23
+2016/10/14 17:00:26 [emerg] 1#1: host not found in upstream "engine" in /etc/nginx/sites-available/symfony.conf:23
