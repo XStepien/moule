@@ -12,6 +12,7 @@ services:
                 - COMPOSER_GLOBAL_INSTALL=true
                 - INSTALL_WORKSPACE_SSH=true
                 - INSTALL_NODE=true
+                - INSTALL_XDEBUG=true
                 - PUID=1000
                 - PGID=1000
                 - TZ=Europe/Paris
@@ -29,6 +30,7 @@ services:
         build:
             context: ./docker/php-fpm
             args:
+                - INSTALL_XDEBUG=true
                 - INSTALL_ZIP_ARCHIVE=false
             dockerfile: Dockerfile-70
         volumes_from:
